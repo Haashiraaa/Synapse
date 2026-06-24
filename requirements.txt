@@ -1,0 +1,17 @@
+
+
+
+# Required packages
+anthropic
+python-telegram-bot
+psycopg2-binary
+python-dotenv
+haashi_pkg==1.6.0
+
+
+# Optional packages
+ruff
+black
+pyright
+autopep8
+tvm
