@@ -3,12 +3,14 @@
 # src/db/queries.py
 
 from src.db.connection import DbConnection
-from typing import Dict, Any, Optional
+from src.config.settings import Settings
+from typing import Dict, Any, Optional, List, Union
+from psycopg2.extras import RealDictRow
 
 
 class DbQueries:
 
-    def get_or_create_conversation(self, chat_id: int) -> Dict[Any, Any]:
+    def get_or_create_conversation(self, chat_id: int) -> Union[Dict[Any, Any], RealDictRow]:
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -23,7 +25,8 @@ class DbQueries:
                     (chat_id,),
                 )
                 conn.commit()
-                return dict(cur.fetchone())
+                row = cur.fetchone()
+                return dict(row) if row else {}
 
     def save_message(self, chat_id: int, role: str, content: str, user_name: Optional[str] = None):
         with DbConnection.get_conn() as conn:
@@ -35,7 +38,7 @@ class DbQueries:
                 )
             conn.commit()
 
-    def get_recent_messages(self, chat_id: int, limit: int = MESSAGE_WINDOW) -> list[dict]:
+    def get_recent_messages(self, chat_id: int, limit: int = Settings().MESSAGE_WINDOW) -> List[Dict[Any, Any]]:
         """Returns messages oldest-first for the context window."""
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
@@ -48,7 +51,8 @@ class DbQueries:
                     (chat_id, limit),
                 )
                 rows = cur.fetchall()
-        return list(reversed(rows))  # flip to chronological
+        # flip to chronological
+        return list(reversed([dict(row) for row in rows])) if rows else []
 
     def get_message_count(self, chat_id: int) -> int:
         with DbConnection.get_conn() as conn:
@@ -57,9 +61,10 @@ class DbQueries:
                     "SELECT COUNT(*) as cnt FROM messages WHERE chat_id = %s",
                     (chat_id,),
                 )
-                return cur.fetchone()["cnt"]
+                row = cur.fetchone()
+                return int(row["cnt"]) if row else 0  # type: ignore
 
-    def save_summary(self, chat_id: int, summary: str):
+    def save_summary(self, chat_id: int, summary: str) -> None:
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -70,7 +75,7 @@ class DbQueries:
                 )
             conn.commit()
 
-    def prune_old_messages(self, chat_id: int, keep: int = MESSAGE_WINDOW):
+    def prune_old_messages(self, chat_id: int, keep: int = Settings().MESSAGE_WINDOW) -> None:
         """Delete everything except the most recent `keep` messages."""
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:

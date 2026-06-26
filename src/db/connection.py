@@ -6,7 +6,6 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from src.config.settings import Settings
 from haashi_pkg.utility import Logger
-from typing import Optional
 
 
 class DbConnection:
@@ -14,6 +13,14 @@ class DbConnection:
     @classmethod
     def get_conn(cls) -> psycopg2.extensions.connection:
         return psycopg2.connect(Settings().DATABASE_URL, cursor_factory=RealDictCursor)
+
+    @classmethod
+    def test_conn(cls, logger: Logger) -> None:
+        with cls.get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+                result = cur.fetchone()
+                logger.info(f"Connection successful: {result}")
 
     @classmethod
     def init_db(cls, logger: Logger) -> None:
