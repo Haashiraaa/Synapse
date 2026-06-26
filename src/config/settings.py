@@ -3,7 +3,7 @@
 # src/config/settings.py
 
 import os
-from exceptions.errors import EnvVariableError
+from src.exceptions.errors import EnvVariableError
 from dotenv import load_dotenv
 
 load_dotenv()
