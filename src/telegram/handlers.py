@@ -60,9 +60,8 @@ class BotHandlers:
 
         try:
             reply = self.claude.get_reply(chat_id)
-        except Exception as e:
-            await message.reply_text("⚠️ Something went wrong calling Claude. Try again.")
-            return
+        except Exception as exc:
+            raise exc
 
         self.db.save_message(chat_id, "assistant", reply)
         await message.reply_text(reply)
