@@ -38,7 +38,7 @@ class DbQueries:
                 )
             conn.commit()
 
-    def get_recent_messages(self, chat_id: int, limit: int = Settings().MESSAGE_WINDOW) -> List[Dict[Any, Any]]:
+    def get_recent_messages(self, chat_id: int, limit: int = Settings.MESSAGE_WINDOW) -> List[Dict[Any, Any]]:
         """Returns messages oldest-first for the context window."""
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
@@ -75,7 +75,7 @@ class DbQueries:
                 )
             conn.commit()
 
-    def prune_old_messages(self, chat_id: int, keep: int = Settings().MESSAGE_WINDOW) -> None:
+    def prune_old_messages(self, chat_id: int, keep: int = Settings.MESSAGE_WINDOW) -> None:
         """Delete everything except the most recent `keep` messages."""
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
@@ -89,5 +89,13 @@ class DbQueries:
                              LIMIT %s
                          )""",
                     (chat_id, chat_id, keep),
+                )
+            conn.commit()
+
+    def clear_history(self, chat_id: int) -> None:
+        with DbConnection.get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM messages WHERE chat_id = %s", (chat_id,)
                 )
             conn.commit()
