@@ -4,6 +4,7 @@
 
 import logging
 from haashi_pkg.utility import Logger
+from src.db.connection import DbConnection
 from src.telegram.handlers import BotHandlers
 from src.config.settings import Settings
 from telegram.ext import Application, ApplicationBuilder, CommandHandler, MessageHandler, filters
@@ -21,6 +22,7 @@ class Main:
 
     def run(self) -> None:
 
+        DbConnection.init_db(self.logger)
         app = self._build_app()
 
         app.add_handler(CommandHandler("start", self.bot.cmd_start))

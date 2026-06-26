@@ -12,7 +12,7 @@ class DbConnection:
 
     @classmethod
     def get_conn(cls) -> psycopg2.extensions.connection:
-        return psycopg2.connect(Settings().DATABASE_URL, cursor_factory=RealDictCursor)
+        return psycopg2.connect(Settings.DATABASE_URL, cursor_factory=RealDictCursor)
 
     @classmethod
     def test_conn(cls, logger: Logger) -> None:
