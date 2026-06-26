@@ -12,6 +12,7 @@ load_dotenv()
 class Settings:
 
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+    GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
     DATABASE_URL = os.getenv("DATABASE_URL")
     BOT_USERNAME = os.getenv("BOT_USERNAME")  # e.g. @YourBotName
@@ -20,9 +21,11 @@ class Settings:
 
     if not all([
         TELEGRAM_TOKEN,
+        GROUP_CHAT_ID,
         ANTHROPIC_API_KEY,
         DATABASE_URL,
         BOT_USERNAME,
+
     ]):
         raise EnvVariableError(
             "Missing or invalid environment variables! Please check your .env file.")

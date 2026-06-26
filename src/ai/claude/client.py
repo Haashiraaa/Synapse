@@ -37,15 +37,12 @@ class Claude(BaseAIClient):
         """
         messages = self._build_messages(chat_id)
 
-        try:
-            response = self._client.messages.create(
-                model=self._MODEL,
-                max_tokens=self._REPLY_MAX_TOKENS,
-                system=SYSTEM_PROMPT,
-                messages=messages
-            )
-        except Exception as exc:
-            raise exc
+        response = self._client.messages.create(
+            model=self._MODEL,
+            max_tokens=self._REPLY_MAX_TOKENS,
+            system=SYSTEM_PROMPT,
+            messages=messages
+        )
 
         return self._extract_text(response.content)
 
@@ -73,14 +70,11 @@ class Claude(BaseAIClient):
             "capturing key decisions, code snippets discussed, open questions, and who said what."
         )
 
-        try:
-            response = self._client.messages.create(
-                model=self._MODEL,
-                max_tokens=self._SUMMARY_MAX_TOKENS,
-                messages=[{"role": "user", "content": prompt}],
-            )
-        except Exception as exc:
-            raise exc
+        response = self._client.messages.create(
+            model=self._MODEL,
+            max_tokens=self._SUMMARY_MAX_TOKENS,
+            messages=[{"role": "user", "content": prompt}],
+        )
 
         return self._extract_text(response.content)
 

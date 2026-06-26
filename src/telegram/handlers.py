@@ -58,10 +58,7 @@ class BotHandlers:
         self.db.save_message(chat_id, "user", clean_text, user_name)
         await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
-        try:
-            reply = self.claude.get_reply(chat_id)
-        except Exception as exc:
-            raise exc
+        reply = self.claude.get_reply(chat_id)
 
         self.db.save_message(chat_id, "assistant", reply)
         await message.reply_text(reply)
