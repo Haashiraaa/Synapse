@@ -53,6 +53,7 @@ class Main:
             filters.TEXT & ~filters.COMMAND, self.bot.handle_message))
 
         app.add_error_handler(self._error_handler)
+        app.post_shutdown = self._notify_shutdown
 
         try:
             self.logger.info("Bot is running...")
