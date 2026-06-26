@@ -18,7 +18,7 @@ class Settings:
     MESSAGE_WINDOW = int(os.getenv("MESSAGE_WINDOW", 20)
                          )  # sliding window size
 
-    if not any([
+    if not all([
         TELEGRAM_TOKEN,
         ANTHROPIC_API_KEY,
         DATABASE_URL,
