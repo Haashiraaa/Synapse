@@ -4,18 +4,17 @@
 
 from src.db.queries import DbQueries
 from src.config.settings import Settings
-from src.ai.claude.client import Claude
+from src.ai.base import BaseAIClient
 from src.ai.factory import get_ai_client
 from telegram import Update
 from telegram.ext import ContextTypes
-from typing import cast
 
 
 class BotHandlers:
 
     def __init__(self) -> None:
         self.db = DbQueries()
-        self.claude = cast(Claude, get_ai_client())
+        self.claude: BaseAIClient = get_ai_client()
 
     async def cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         assert update.effective_chat

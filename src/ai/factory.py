@@ -4,10 +4,9 @@
 
 from src.config.settings import Settings
 from src.ai.base import BaseAIClient
-from typing import Optional
 
 
-def get_ai_client() -> Optional[BaseAIClient]:
+def get_ai_client() -> BaseAIClient:
     provider = (Settings.AI_PROVIDER or "claude").lower()
 
     if provider not in ["claude", "openai"]:
@@ -16,7 +15,5 @@ def get_ai_client() -> Optional[BaseAIClient]:
     if provider == "claude":
         from src.ai.claude.client import Claude
         return Claude()
-    elif provider == "openai":
-        # from src.ai.openai.client import OpenAI
-        # return OpenAI()
-        pass
+
+    raise NotImplementedError("OpenAI is not yet implemented")
