@@ -7,3 +7,11 @@ class AppError(Exception):
 
 class EnvVariableError(AppError):
     pass
+
+
+class EmailAuthError(AppError):
+    pass
+
+
+class EmailDeliveryError(AppError):
+    pass
