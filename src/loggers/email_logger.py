@@ -3,8 +3,6 @@
 # src/loggers/email_logger.py
 
 
-# loggers/email_logger.py
-
 import smtplib
 import logging
 from email.mime.text import MIMEText

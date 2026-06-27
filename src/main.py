@@ -8,6 +8,8 @@ from haashi_pkg.utility import Logger
 from src.db.connection import DbConnection
 from src.telegram.handlers import BotHandlers
 from src.config.settings import Settings
+from src.exceptions.errors import EmailAuthError, EmailDeliveryError
+from src.loggers.email_logger import EmailAlertLogger
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -25,6 +27,7 @@ class Main:
     def __init__(self) -> None:
         self.bot = BotHandlers()
         self.logger = Logger(level=logging.INFO)
+        self.email_alert = EmailAlertLogger(self.logger)
 
     def _build_app(self) -> Application[Any, Any, Any, Any, Any, Any]:
         return ApplicationBuilder().token(cast(str, Settings.TELEGRAM_TOKEN)).build()
@@ -34,10 +37,24 @@ class Main:
             chat_id=Settings.GROUP_CHAT_ID,
             text="🔧 Bot is going down for maintenance. We'll be back shortly!"
         )
+        try:
+            self.email_alert.alert_bot_stopped(
+                reason="Process was interrupted by user!")
+        except (EmailAuthError, EmailDeliveryError) as exc:
+            self.logger.error(
+                f"Failed to send shutdown alert: {exc}", exception=exc, save_to_json=True)
 
     async def _error_handler(self, update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-        self.logger.error(f"Exception: {context.error}")
-        self.logger.error(exception=context.error, save_to_json=True)
+        self.logger.error(
+            f"Exception: {context.error}", exception=context.error, save_to_json=True)
+
+        try:
+            self.email_alert.alert_error(cast(str, context.error))
+        except (EmailAuthError, EmailDeliveryError) as exc:
+            self.logger.error(
+                f"Failed to send error alert: {exc}", exception=exc, save_to_json=True)
+            pass
+
         if isinstance(update, Update) and update.message:
             await update.message.reply_text("⚠️ Something went wrong. Try again.")
 
@@ -57,7 +74,14 @@ class Main:
 
         try:
             self.logger.info("Bot is running...")
+            self.email_alert.alert_bot_started()
             app.run_polling()
+
+        except (EmailAuthError, EmailDeliveryError) as exc:
+            self.logger.error(
+                f"Failed to send start alert: {exc}", exception=exc, save_to_json=True)
+            pass
+
         except KeyboardInterrupt:
             self.logger.info("Shutting down...")
             sys.exit(0)

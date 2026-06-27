@@ -19,6 +19,11 @@ class Settings:
     MESSAGE_WINDOW = int(os.getenv("MESSAGE_WINDOW", 20)
                          )  # sliding window size
 
+    # Email
+    ALERT_EMAIL_FROM = os.getenv("ALERT_EMAIL_FROM")
+    ALERT_EMAIL_TO = os.getenv("ALERT_EMAIL_TO")
+    ALERT_EMAIL_PASSWORD = os.getenv("ALERT_EMAIL_PASSWORD")
+
     if not all([
         TELEGRAM_TOKEN,
         GROUP_CHAT_ID,
