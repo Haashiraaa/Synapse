@@ -73,14 +73,14 @@ class Main:
         app.post_shutdown = self._notify_shutdown
 
         try:
-            self.logger.info("Bot is running...")
             self.email_alert.alert_bot_started()
-            app.run_polling()
-
         except (EmailAuthError, EmailDeliveryError) as exc:
             self.logger.error(
                 f"Failed to send start alert: {exc}", exception=exc, save_to_json=True)
-            pass
+
+        try:
+            self.logger.info("Bot is running...")
+            app.run_polling()
 
         except KeyboardInterrupt:
             self.logger.info("Shutting down...")

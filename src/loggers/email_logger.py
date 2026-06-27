@@ -45,13 +45,13 @@ class EmailAlertLogger(BaseAlertLogger):
         self.to_addr: str = Settings.ALERT_EMAIL_TO or ""
         self.password: str = Settings.ALERT_EMAIL_PASSWORD or ""
 
-        if not all([self.from_addr, self.to_addr, self.password]):
-            raise ValueError(
-                "Missing email alert config. "
-                "Set ALERT_EMAIL_FROM, ALERT_EMAIL_TO, ALERT_EMAIL_PASSWORD in .env"
-            )
+        self.configured = all([self.from_addr, self.to_addr, self.password])
 
     def send(self, subject: str, body: str) -> None:
+
+        if not self.configured:
+            self.logger.warning("Email alerts are not configured. Skipping...")
+            return
 
         msg = MIMEMultipart()
         msg["From"] = self.from_addr
