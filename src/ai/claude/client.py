@@ -18,13 +18,13 @@ class Claude(BaseAIClient):
     and conversation summarisation.
     """
 
-    _MODEL = "claude-sonnet-4-6"
-    _SUMMARY_MAX_TOKENS = 500
-    _REPLY_MAX_TOKENS = 1000
-
     def __init__(self) -> None:
         self._client = Anthropic(api_key=Settings.ANTHROPIC_API_KEY)
         self._db = DbQueries()
+
+        self._MODEL = self.get_model("sonnet")
+        self._SUMMARY_MAX_TOKENS = 500
+        self._REPLY_MAX_TOKENS = 1000
 
     # ── public interface (implements BaseAIClient) ────────────────────────────
 
@@ -77,6 +77,14 @@ class Claude(BaseAIClient):
         return self._extract_text(response.content)
 
     # ── private helpers ───────────────────────────────────────────────────────
+
+    def get_model(self, model: str) -> str:
+
+        claude_model_map = {
+            "sonnet": "claude-sonnet-4-6",
+            "haiku": "claude-haiku-4-5"
+        }
+        return claude_model_map.get(model.lower(), "claude-sonnet-4-6")
 
     def _extract_text(self, content: List[Any]) -> str:
         """Narrow the response content union to the first TextBlock's text."""
