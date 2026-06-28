@@ -11,6 +11,9 @@ class BaseAIClient(ABC):
     Any provider (Claude, OpenAI, etc.) must implement these methods.
     """
 
+    def __init__(self) -> None:
+        self._MODEL: str = self.get_model("sonnet")
+
     @abstractmethod
     def get_reply(self, chat_id: int) -> str:
         """
@@ -26,3 +29,11 @@ class BaseAIClient(ABC):
         Returns the summary text — caller is responsible for saving it.
         """
         ...
+
+    def get_model(self, model: str) -> str:
+
+        claude_model_map = {
+            "sonnet": "claude-sonnet-4-6",
+            "haiku": "claude-haiku-4-5"
+        }
+        return claude_model_map.get(model.lower(), "claude-sonnet-4-6")
