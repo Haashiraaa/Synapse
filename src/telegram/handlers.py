@@ -28,6 +28,43 @@ class BotHandlers:
             f"I remember the last {Settings.MESSAGE_WINDOW} messages and summarise older ones automatically."
         )
 
+    async def cmd_summary(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        assert update.effective_chat
+        assert update.message
+        chat_id = update.effective_chat.id
+        await context.bot.send_chat_action(chat_id=chat_id, action="typing")
+        summary = self.ai.summarise(chat_id)
+        self.db.save_summary(chat_id, summary)
+        await update.message.reply_text(
+            f"📋 *Conversation Summary*\n\n{summary}", parse_mode="Markdown"
+        )
+
+    async def cmd_clear(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        assert update.effective_chat
+        assert update.message
+        chat_id = update.effective_chat.id
+        self.db.clear_history(chat_id)
+        self.db.save_summary(chat_id, "")
+        await update.message.reply_text("🗑️ History cleared. Fresh start.")
+
+    async def cmd_switch_model(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        assert update.message
+        if not context.args:
+            await update.message.reply_text("Usage: /switchmodel sonnet | haiku")
+            return
+
+        model = context.args[0].lower()
+        if model not in ["sonnet", "haiku"]:
+            await update.message.reply_text("❌ Unknown model. Choose: sonnet or haiku")
+            return
+
+        self.ai._MODEL = self.ai.get_model(model)
+        await update.message.reply_text(f"✅ Switched to `{self.ai._MODEL}`", parse_mode="Markdown")
+
+    async def cmd_model(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        assert update.message
+        await update.message.reply_text(f"🤖 Current model: `{self.ai._MODEL}`", parse_mode="Markdown")
+
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = update.message
         if not message or not message.text:
@@ -65,36 +102,3 @@ class BotHandlers:
 
         self.db.save_message(chat_id, "assistant", reply)
         await message.reply_text(reply)
-
-    async def cmd_summary(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        assert update.effective_chat
-        assert update.message
-        chat_id = update.effective_chat.id
-        await context.bot.send_chat_action(chat_id=chat_id, action="typing")
-        summary = self.ai.summarise(chat_id)
-        self.db.save_summary(chat_id, summary)
-        await update.message.reply_text(
-            f"📋 *Conversation Summary*\n\n{summary}", parse_mode="Markdown"
-        )
-
-    async def cmd_clear(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        assert update.effective_chat
-        assert update.message
-        chat_id = update.effective_chat.id
-        self.db.clear_history(chat_id)
-        self.db.save_summary(chat_id, "")
-        await update.message.reply_text("🗑️ History cleared. Fresh start.")
-
-    async def cmd_switch_model(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        assert update.message
-        if not context.args:
-            await update.message.reply_text("Usage: /switchmodel sonnet | haiku")
-            return
-
-        model = context.args[0].lower()
-        if model not in ["sonnet", "haiku"]:
-            await update.message.reply_text("❌ Unknown model. Choose: sonnet or haiku")
-            return
-
-        self.ai._MODEL = self.ai.get_model(model)
-        await update.message.reply_text(f"✅ Switched to `{self.ai._MODEL}`", parse_mode="Markdown")

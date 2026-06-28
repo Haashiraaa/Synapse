@@ -66,6 +66,9 @@ class Main:
         app.add_handler(CommandHandler("start", self.bot.cmd_start))
         app.add_handler(CommandHandler("summary", self.bot.cmd_summary))
         app.add_handler(CommandHandler("clear", self.bot.cmd_clear))
+        app.add_handler(CommandHandler("model", self.bot.cmd_model))
+        app.add_handler(CommandHandler(
+            "switchmodel", self.bot.cmd_switch_model))
         app.add_handler(MessageHandler(
             filters.TEXT & ~filters.COMMAND, self.bot.handle_message))
 
