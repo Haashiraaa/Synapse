@@ -1,1 +1,3 @@
-# Nexus
+# Synapse
+
+## Documentation coming soon

@@ -19,6 +19,8 @@ class Claude(BaseAIClient):
     """
 
     def __init__(self) -> None:
+
+        super().__init__()
         self._client = Anthropic(api_key=Settings.ANTHROPIC_API_KEY)
         self._db = DbQueries()
 
