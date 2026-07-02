@@ -13,7 +13,7 @@ class Settings:
 
     # Telegram
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-    GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")
+    GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID", "Unknown")
     BOT_USERNAME = os.getenv("BOT_USERNAME")  # e.g. @YourBotName
 
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")

@@ -73,6 +73,7 @@ class BotHandlers:
         assert update.effective_chat
         assert message.from_user
         chat_id = update.effective_chat.id
+        # print(f"CHAT ID: {chat_id}")
         user = message.from_user
         user_name = user.username or user.first_name or "Someone"
         text = message.text
