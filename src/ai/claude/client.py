@@ -8,7 +8,7 @@ from src.ai.base import BaseAIClient
 from src.ai.prompt import SYSTEM_PROMPT
 from src.config.settings import Settings
 from src.db.queries import DbQueries
-from typing import List, Any
+from typing import List, Any, Dict, Optional, cast
 
 
 class Claude(BaseAIClient):
@@ -29,12 +29,19 @@ class Claude(BaseAIClient):
 
     # ── public interface (implements BaseAIClient) ────────────────────────────
 
-    def get_reply(self, chat_id: int) -> str:
+    def get_reply(self, chat_id: int, media: Optional[List[Dict[Any, Any]]] = None, caption: str = "") -> str:
         """
         Assemble the message context for chat_id and return Claude's reply.
         Raises anthropic.APIError on failure — let the caller handle it.
         """
         messages = self._build_messages(chat_id)
+
+        if media and messages:
+            last = messages[-1]
+            text_part = caption or (
+                last["content"] if isinstance(last["content"], str) else "")
+            last["content"] = cast(
+                Any, [{"type": "text", "text": text_part}] + media)
 
         response = self._client.messages.create(
             model=self._MODEL,

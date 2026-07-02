@@ -2,6 +2,7 @@
 
 # src/telegram/handlers.py
 
+import base64
 from src.db.queries import DbQueries
 from src.config.settings import Settings
 from src.ai.base import BaseAIClient
@@ -65,6 +66,8 @@ class BotHandlers:
         assert update.message
         await update.message.reply_text(f"🤖 Current model: `{self.ai._MODEL}`", parse_mode="Markdown")
 
+    # ── Messages & media ────────────────────────────────────────
+
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = update.message
         if not message or not message.text:
@@ -100,6 +103,64 @@ class BotHandlers:
         await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
         reply = self.ai.get_reply(chat_id)
+
+        self.db.save_message(chat_id, "assistant", reply)
+        await message.reply_text(reply)
+
+    async def handle_media(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+        message = update.message
+        if not message or not (message.photo or message.document):
+            return
+
+        assert update.effective_chat
+        assert message.from_user
+        chat_id = update.effective_chat.id
+        user = message.from_user
+        user_name = user.username or user.first_name or "Someone"
+        caption = message.caption or ""
+
+        bot_username = Settings.BOT_USERNAME or (await context.bot.get_me()).username
+        mention = f"@{bot_username}"
+        replied_to_bot = (
+            message.reply_to_message
+            and message.reply_to_message.from_user
+            and message.reply_to_message.from_user.username == bot_username
+        )
+
+        if mention.lower() not in caption.lower() and not replied_to_bot:
+            return  # media not directed at the bot — ignore
+
+        clean_caption = caption.replace(
+            mention, "").replace(mention.lower(), "").strip()
+
+        if message.photo:
+            file = await message.photo[-1].get_file()
+            media_type, kind = "image/jpeg", "image"
+        else:
+            doc = message.document
+            assert doc is not None
+
+            if doc.mime_type not in ("image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"):
+                await message.reply_text("I can only read images and PDFs right now 🙃")
+                return
+            file = await doc.get_file()
+            media_type = doc.mime_type
+            kind = "image" if media_type.startswith("image/") else "document"
+
+        raw = await file.download_as_bytearray()
+        b64_data = base64.b64encode(bytes(raw)).decode("utf-8")
+
+        media_block = {"type": kind, "source": {
+            "type": "base64", "media_type": media_type, "data": b64_data}}
+
+        placeholder = f"[sent {'an image' if kind == 'image' else 'a PDF'}]" + \
+            (f": {clean_caption}" if clean_caption else "")
+        self.db.save_message(chat_id, "user", placeholder, user_name)
+        await context.bot.send_chat_action(chat_id=chat_id, action="typing")
+
+        reply = self.ai.get_reply(
+            chat_id, media=[media_block], caption=clean_caption)
 
         self.db.save_message(chat_id, "assistant", reply)
         await message.reply_text(reply)

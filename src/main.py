@@ -71,6 +71,8 @@ class Main:
             "switchmodel", self.bot.cmd_switch_model))
         app.add_handler(MessageHandler(
             filters.TEXT & ~filters.COMMAND, self.bot.handle_message))
+        app.add_handler(MessageHandler(
+            filters.PHOTO | filters.Document.ALL, self.bot.handle_media))
 
         app.add_error_handler(self._error_handler)
         app.post_shutdown = self._notify_shutdown
