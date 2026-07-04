@@ -6,12 +6,12 @@ from functools import wraps
 from telegram import Update
 from telegram.ext import ContextTypes
 from src.config.settings import Settings
-from collections.abc import Awaitable, Callable
+from collections.abc import Callable, Coroutine
 from typing import Any
 
 Handler = Callable[
     [Any, Update, ContextTypes.DEFAULT_TYPE],
-    Awaitable[None],
+    Coroutine[Any, Any, None]
 ]
 
 

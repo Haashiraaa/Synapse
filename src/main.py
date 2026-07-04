@@ -36,7 +36,7 @@ class Main:
 
     async def _notify_shutdown(self, app: Application[Any, Any, Any, Any, Any, Any]) -> None:
         await app.bot.send_message(
-            chat_id=Settings.GROUP_CHAT_ID,
+            chat_id=Settings.ALLOWED_CHAT_ID,
             text="🔧 Bot is going down for maintenance. We'll be back shortly!"
         )
         try:
