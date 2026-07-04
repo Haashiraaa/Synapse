@@ -28,13 +28,18 @@ class Settings:
     ALERT_EMAIL_TO = os.getenv("ALERT_EMAIL_TO")
     ALERT_EMAIL_PASSWORD = os.getenv("ALERT_EMAIL_PASSWORD")
 
-    if not all([
-        TELEGRAM_TOKEN,
-        GROUP_CHAT_ID,
-        ANTHROPIC_API_KEY,
-        DATABASE_URL,
-        BOT_USERNAME,
+    _REQUIRED = {
+        "TELEGRAM_TOKEN": TELEGRAM_TOKEN,
+        "GROUP_CHAT_ID": GROUP_CHAT_ID if GROUP_CHAT_ID != "Unknown" else None,
+        "BOT_USERNAME": BOT_USERNAME,
+        "ANTHROPIC_API_KEY": ANTHROPIC_API_KEY,
+        "DATABASE_URL": DATABASE_URL,
+    }
 
-    ]):
+    _missing = [name for name, value in _REQUIRED.items() if not value]
+    if _missing:
         raise EnvVariableError(
-            "Missing or invalid environment variables! Please check your .env file.")
+            "Missing required environment variables: "
+            + ", ".join(_missing)
+            + ". Copy .env.example to .env and fill these in."
+        )
