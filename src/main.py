@@ -4,6 +4,8 @@
 
 import sys
 import logging
+import signal
+import asyncio
 from haashi_pkg.utility import Logger
 from src.db.connection import DbConnection
 from src.telegram.handlers import BotHandlers
@@ -58,7 +60,7 @@ class Main:
         if isinstance(update, Update) and update.message:
             await update.message.reply_text("⚠️ Something went wrong. Try again.")
 
-    def run(self) -> None:
+    async def _run_async(self) -> None:
 
         DbConnection.init_db(self.logger)
         app = self._build_app()
@@ -77,16 +79,36 @@ class Main:
         app.add_error_handler(self._error_handler)
         app.post_shutdown = self._notify_shutdown
 
+        stop_event = asyncio.Event()
+        loop = asyncio.get_running_loop()
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, stop_event.set)
+
+        await app.initialize()
+        await app.start()
+
+        assert app.updater is not None
+        await app.updater.start_polling()
+
         try:
             self.email_alert.alert_bot_started()
         except (EmailAuthError, EmailDeliveryError) as exc:
             self.logger.error(
                 f"Failed to send start alert: {exc}", exception=exc, save_to_json=True)
 
-        try:
-            self.logger.info("Bot is running...")
-            app.run_polling()
+        self.logger.info("Bot is running...")
+        await stop_event.wait()
 
+        self.logger.info("Shutdown signal received. Stopping gracefully...")
+        await app.updater.stop()
+        await app.stop()
+        await self._notify_shutdown(app)   # bot connection still alive here
+        await app.shutdown()
+        self.logger.info("Shutdown complete.")
+
+    def run(self) -> None:
+        try:
+            asyncio.run(self._run_async())
         except KeyboardInterrupt:
-            self.logger.info("Shutting down...")
+            self.logger.info("Force-interrupted.")
             sys.exit(0)
