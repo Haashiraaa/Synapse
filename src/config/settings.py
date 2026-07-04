@@ -13,7 +13,7 @@ class Settings:
 
     # Telegram
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-    GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID", "Unknown")
+    ALLOWED_CHAT_ID = int(os.getenv("ALLOWED_CHAT_ID", 0))
     BOT_USERNAME = os.getenv("BOT_USERNAME")  # e.g. @YourBotName
 
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
@@ -30,7 +30,7 @@ class Settings:
 
     _REQUIRED = {
         "TELEGRAM_TOKEN": TELEGRAM_TOKEN,
-        "GROUP_CHAT_ID": GROUP_CHAT_ID if GROUP_CHAT_ID != "Unknown" else None,
+        "ALLOWED_CHAT_ID": ALLOWED_CHAT_ID,
         "BOT_USERNAME": BOT_USERNAME,
         "ANTHROPIC_API_KEY": ANTHROPIC_API_KEY,
         "DATABASE_URL": DATABASE_URL,

@@ -7,8 +7,10 @@ from src.db.queries import DbQueries
 from src.config.settings import Settings
 from src.ai.base import BaseAIClient
 from src.ai.factory import get_ai_client
+from src.telegram.decorators import restricted
 from telegram import Update
 from telegram.ext import ContextTypes
+
 
 # pyright: reportPrivateUsage=false
 
@@ -19,6 +21,7 @@ class BotHandlers:
         self.db = DbQueries()
         self.ai: BaseAIClient = get_ai_client()
 
+    @restricted
     async def cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         assert update.effective_chat
         assert update.message
@@ -29,6 +32,7 @@ class BotHandlers:
             f"I remember the last {Settings.MESSAGE_WINDOW} messages and summarise older ones automatically."
         )
 
+    @restricted
     async def cmd_summary(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         assert update.effective_chat
         assert update.message
@@ -40,6 +44,7 @@ class BotHandlers:
             f"📋 *Conversation Summary*\n\n{summary}", parse_mode="Markdown"
         )
 
+    @restricted
     async def cmd_clear(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         assert update.effective_chat
         assert update.message
@@ -48,6 +53,7 @@ class BotHandlers:
         self.db.save_summary(chat_id, "")
         await update.message.reply_text("🗑️ History cleared. Fresh start.")
 
+    @restricted
     async def cmd_switch_model(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         assert update.message
         if not context.args:
@@ -62,12 +68,14 @@ class BotHandlers:
         self.ai._MODEL = self.ai.get_model(model)
         await update.message.reply_text(f"✅ Switched to `{self.ai._MODEL}`", parse_mode="Markdown")
 
+    @restricted
     async def cmd_model(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         assert update.message
         await update.message.reply_text(f"🤖 Current model: `{self.ai._MODEL}`", parse_mode="Markdown")
 
     # ── Messages & media ────────────────────────────────────────
 
+    @restricted
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = update.message
         if not message or not message.text:
@@ -107,6 +115,7 @@ class BotHandlers:
         self.db.save_message(chat_id, "assistant", reply)
         await message.reply_text(reply)
 
+    @restricted
     async def handle_media(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         message = update.message

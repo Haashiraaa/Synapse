@@ -5,6 +5,10 @@ class AppError(Exception):
     pass
 
 
+class StorageError(AppError):
+    pass
+
+
 class EnvVariableError(AppError):
     pass
 
