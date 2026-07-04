@@ -35,6 +35,8 @@ dist/
 *.sqlite3
 *.db
 *.env
+!.env.example
+
 
 # Generated files
 COMMIT*

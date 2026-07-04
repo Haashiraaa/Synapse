@@ -112,3 +112,7 @@ class Main:
         except KeyboardInterrupt:
             self.logger.info("Force-interrupted.")
             sys.exit(0)
+
+
+def main() -> None:
+    Main().run()
