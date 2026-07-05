@@ -1,4 +1,8 @@
-[project]
+
+[
+project
+]
+
 name = "synapse"
 version = "0.1.0"
 description = "Free, open-source Telegram group AI bot built on the Anthropic Claude API"
