@@ -1,5 +1,3 @@
-
-
 # src/config/settings.py
 
 import os
@@ -22,8 +20,7 @@ class Settings:
     AI_PROVIDER = os.getenv("AI_PROVIDER")
 
     DATABASE_URL = os.getenv("DATABASE_URL")
-    MESSAGE_WINDOW = int(os.getenv("MESSAGE_WINDOW", 8)
-                         )  # sliding window size
+    MESSAGE_WINDOW = int(os.getenv("MESSAGE_WINDOW", 8))  # sliding window size
 
     # Email
     ALERT_EMAIL_FROM = os.getenv("ALERT_EMAIL_FROM")

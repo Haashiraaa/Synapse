@@ -1,4 +1,3 @@
-
 # src/storage/store.py
 
 import logging
@@ -11,11 +10,7 @@ from src.exceptions.errors import StorageError
 
 class EnvStore:
 
-    def __init__(
-        self,
-        logger: Logger | None = None,
-        handler: FileHandler | None = None
-    ) -> None:
+    def __init__(self, logger: Logger | None = None, handler: FileHandler | None = None) -> None:
         self.logger = logger or Logger(level=logging.INFO)
         self.handler = handler or FileHandler(logger=self.logger)
         self.project_root = self.handler.get_ancestor_by_name("Synapse")
@@ -36,10 +31,5 @@ class EnvStore:
 
     def update_key(self, key: str, value: str) -> None:
         content = self._load_env()
-        updated = re.sub(
-            rf"^{key}=.*$",
-            f"{key}={value}",
-            content,
-            flags=re.MULTILINE
-        )
+        updated = re.sub(rf"^{key}=.*$", f"{key}={value}", content, flags=re.MULTILINE)
         self._save_env(updated)

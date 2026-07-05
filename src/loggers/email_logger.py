@@ -1,5 +1,3 @@
-
-
 # src/loggers/email_logger.py
 
 
@@ -35,10 +33,7 @@ class EmailAlertLogger(BaseAlertLogger):
     SMTP_HOST = "smtp.gmail.com"
     SMTP_PORT = 587
 
-    def __init__(
-        self,
-        logger: Logger | None = None
-    ) -> None:
+    def __init__(self, logger: Logger | None = None) -> None:
 
         self.logger = logger or Logger(level=logging.INFO)
 
@@ -80,6 +75,4 @@ class EmailAlertLogger(BaseAlertLogger):
 
         except Exception as exc:
             self.logger.error(f"Failed to send email alert: {exc}")
-            raise EmailDeliveryError(
-                f"Failed to deliver email alert: {exc}"
-            ) from exc
+            raise EmailDeliveryError(f"Failed to deliver email alert: {exc}") from exc

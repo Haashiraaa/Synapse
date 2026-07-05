@@ -1,5 +1,3 @@
-
-
 # src/ai/factory.py
 
 from src.ai.base import BaseAIClient
@@ -14,6 +12,7 @@ def get_ai_client() -> BaseAIClient:
 
     if provider == "claude":
         from src.ai.claude.client import Claude
+
         return Claude()
 
     raise NotImplementedError("OpenAI is not yet implemented")

@@ -1,5 +1,3 @@
-
-
 # src/telegram/handlers.py
 
 import base64
@@ -80,7 +78,9 @@ class BotHandlers:
     @restricted
     async def cmd_model(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         assert update.message
-        await update.message.reply_text(f"🤖 Current model: `{self.ai._MODEL}`", parse_mode="Markdown")
+        await update.message.reply_text(
+            f"🤖 Current model: `{self.ai._MODEL}`", parse_mode="Markdown"
+        )
 
     # ── Messages & media ────────────────────────────────────────
 
@@ -110,8 +110,7 @@ class BotHandlers:
                 self.db.prune_old_messages(chat_id)
             return
 
-        clean_text = text.replace(mention, "").replace(
-            mention.lower(), "").strip()
+        clean_text = text.replace(mention, "").replace(mention.lower(), "").strip()
         if not clean_text:
             await message.reply_text("Yeah? Ask me something 👀")
             return
@@ -149,8 +148,7 @@ class BotHandlers:
         if mention.lower() not in caption.lower() and not replied_to_bot:
             return  # media not directed at the bot — ignore
 
-        clean_caption = caption.replace(
-            mention, "").replace(mention.lower(), "").strip()
+        clean_caption = caption.replace(mention, "").replace(mention.lower(), "").strip()
 
         if message.photo:
             file = await message.photo[-1].get_file()
@@ -159,7 +157,13 @@ class BotHandlers:
             doc = message.document
             assert doc is not None
 
-            if doc.mime_type not in ("image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"):
+            if doc.mime_type not in (
+                "image/jpeg",
+                "image/png",
+                "image/webp",
+                "image/gif",
+                "application/pdf",
+            ):
                 await message.reply_text("I can only read images and PDFs right now 🙃")
                 return
             file = await doc.get_file()
@@ -169,16 +173,18 @@ class BotHandlers:
         raw = await file.download_as_bytearray()
         b64_data = base64.b64encode(bytes(raw)).decode("utf-8")
 
-        media_block = {"type": kind, "source": {
-            "type": "base64", "media_type": media_type, "data": b64_data}}
+        media_block = {
+            "type": kind,
+            "source": {"type": "base64", "media_type": media_type, "data": b64_data},
+        }
 
-        placeholder = f"[sent {'an image' if kind == 'image' else 'a PDF'}]" + \
-            (f": {clean_caption}" if clean_caption else "")
+        placeholder = f"[sent {'an image' if kind == 'image' else 'a PDF'}]" + (
+            f": {clean_caption}" if clean_caption else ""
+        )
         self.db.save_message(chat_id, "user", placeholder, user_name)
         await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
-        reply = self.ai.get_reply(
-            chat_id, media=[media_block], caption=clean_caption)
+        reply = self.ai.get_reply(chat_id, media=[media_block], caption=clean_caption)
 
         self.db.save_message(chat_id, "assistant", reply)
         await message.reply_text(reply)

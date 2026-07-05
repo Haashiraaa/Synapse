@@ -1,5 +1,3 @@
-
-
 # src/ai/claude/client.py
 
 from typing import Any, cast
@@ -31,7 +29,9 @@ class Claude(BaseAIClient):
 
     # ── public interface (implements BaseAIClient) ────────────────────────────
 
-    def get_reply(self, chat_id: int, media: list[dict[Any, Any]] | None = None, caption: str = "") -> str:
+    def get_reply(
+        self, chat_id: int, media: list[dict[Any, Any]] | None = None, caption: str = ""
+    ) -> str:
         """
         Assemble the message context for chat_id and return Claude's reply.
         Raises anthropic.APIError on failure — let the caller handle it.
@@ -40,16 +40,14 @@ class Claude(BaseAIClient):
 
         if media and messages:
             last = messages[-1]
-            text_part = caption or (
-                last["content"] if isinstance(last["content"], str) else "")
-            last["content"] = cast(
-                Any, [{"type": "text", "text": text_part}] + media)
+            text_part = caption or (last["content"] if isinstance(last["content"], str) else "")
+            last["content"] = cast(Any, [{"type": "text", "text": text_part}] + media)
 
         response = self._client.messages.create(
             model=self._MODEL,
             max_tokens=self._REPLY_MAX_TOKENS,
             system=SYSTEM_PROMPT,
-            messages=messages
+            messages=messages,
         )
 
         return self._extract_text(response.content)
@@ -60,15 +58,12 @@ class Claude(BaseAIClient):
         Returns the summary text — does NOT save or prune; caller owns that.
         """
         convo = self._db.get_or_create_conversation(chat_id)
-        recent = self._db.get_recent_messages(
-            chat_id, limit=Settings.MESSAGE_WINDOW)
+        recent = self._db.get_recent_messages(chat_id, limit=Settings.MESSAGE_WINDOW)
 
         if not recent:
             return ""
 
-        history_text = "\n".join(
-            f"{m['user_name'] or m['role']}: {m['content']}" for m in recent
-        )
+        history_text = "\n".join(f"{m['user_name'] or m['role']}: {m['content']}" for m in recent)
         prev_summary = convo.get("summary", "")
 
         prompt = (
@@ -108,20 +103,23 @@ class Claude(BaseAIClient):
 
         summary = convo.get("summary", "").strip()
         if summary:
-            messages.append({
-                "role": "user",
-                "content": f"[Conversation summary so far]\n{summary}",
-            })
-            messages.append({
-                "role": "assistant",
-                "content": "Got it, I have context from the earlier conversation.",
-            })
+            messages.append(
+                {
+                    "role": "user",
+                    "content": f"[Conversation summary so far]\n{summary}",
+                }
+            )
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": "Got it, I have context from the earlier conversation.",
+                }
+            )
 
         for m in recent:
             if m["role"] == "user":
                 prefix = f"{m['user_name']}: " if m["user_name"] else ""
-                messages.append(
-                    {"role": "user", "content": prefix + m["content"]})
+                messages.append({"role": "user", "content": prefix + m["content"]})
             else:
                 messages.append({"role": "assistant", "content": m["content"]})
 

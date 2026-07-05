@@ -1,5 +1,3 @@
-
-
 # src/db/queries.py
 
 from typing import Any
@@ -15,9 +13,7 @@ class DbQueries:
     def get_or_create_conversation(self, chat_id: int) -> dict[Any, Any] | RealDictRow:
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
-                cur.execute(
-                    "SELECT * FROM conversations WHERE chat_id = %s", (chat_id,)
-                )
+                cur.execute("SELECT * FROM conversations WHERE chat_id = %s", (chat_id,))
                 row = cur.fetchone()
                 if row:
                     return dict(row)
@@ -40,7 +36,9 @@ class DbQueries:
                 )
             conn.commit()
 
-    def get_recent_messages(self, chat_id: int, limit: int = Settings.MESSAGE_WINDOW) -> list[dict[Any, Any]]:
+    def get_recent_messages(
+        self, chat_id: int, limit: int = Settings.MESSAGE_WINDOW
+    ) -> list[dict[Any, Any]]:
         """Returns messages oldest-first for the context window."""
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
@@ -97,7 +95,5 @@ class DbQueries:
     def clear_history(self, chat_id: int) -> None:
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
-                cur.execute(
-                    "DELETE FROM messages WHERE chat_id = %s", (chat_id,)
-                )
+                cur.execute("DELETE FROM messages WHERE chat_id = %s", (chat_id,))
             conn.commit()

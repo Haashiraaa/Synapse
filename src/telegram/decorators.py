@@ -1,4 +1,3 @@
-
 # src/telegram/decorators.py
 
 
@@ -11,10 +10,7 @@ from telegram.ext import ContextTypes
 from src.config.settings import Settings
 from telegram import Update
 
-Handler = Callable[
-    [Any, Update, ContextTypes.DEFAULT_TYPE],
-    Coroutine[Any, Any, None]
-]
+Handler = Callable[[Any, Update, ContextTypes.DEFAULT_TYPE], Coroutine[Any, Any, None]]
 
 
 def restricted(func: Handler) -> Handler:

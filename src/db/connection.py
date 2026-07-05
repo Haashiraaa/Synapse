@@ -1,5 +1,3 @@
-
-
 # src/db/connection.py
 
 import psycopg2
