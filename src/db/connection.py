@@ -3,9 +3,10 @@
 # src/db/connection.py
 
 import psycopg2
-from psycopg2.extras import RealDictCursor
-from src.config.settings import Settings
 from haashi_pkg.utility import Logger
+from psycopg2.extras import RealDictCursor
+
+from src.config.settings import Settings
 
 
 class DbConnection:

@@ -2,8 +2,8 @@
 
 # src/ai/factory.py
 
-from src.config.settings import Settings
 from src.ai.base import BaseAIClient
+from src.config.settings import Settings
 
 
 def get_ai_client() -> BaseAIClient:

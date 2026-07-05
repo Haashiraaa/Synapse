@@ -1,19 +1,20 @@
 
 # src/storage/store.py
 
-import re
 import logging
+import re
+
+from haashi_pkg.utility import FileHandler, Logger
+
 from src.exceptions.errors import StorageError
-from haashi_pkg.utility import Logger, FileHandler
-from typing import Optional
 
 
 class EnvStore:
 
     def __init__(
         self,
-        logger: Optional[Logger] = None,
-        handler: Optional[FileHandler] = None
+        logger: Logger | None = None,
+        handler: FileHandler | None = None
     ) -> None:
         self.logger = logger or Logger(level=logging.INFO)
         self.handler = handler or FileHandler(logger=self.logger)

@@ -2,13 +2,15 @@
 
 # src/ai/claude/client.py
 
+from typing import Any, cast
+
 from anthropic import Anthropic
 from anthropic.types import MessageParam, TextBlock
+
 from src.ai.base import BaseAIClient
 from src.ai.prompt import SYSTEM_PROMPT
 from src.config.settings import Settings
 from src.db.queries import DbQueries
-from typing import List, Any, Dict, Optional, cast
 
 
 class Claude(BaseAIClient):
@@ -29,7 +31,7 @@ class Claude(BaseAIClient):
 
     # ── public interface (implements BaseAIClient) ────────────────────────────
 
-    def get_reply(self, chat_id: int, media: Optional[List[Dict[Any, Any]]] = None, caption: str = "") -> str:
+    def get_reply(self, chat_id: int, media: list[dict[Any, Any]] | None = None, caption: str = "") -> str:
         """
         Assemble the message context for chat_id and return Claude's reply.
         Raises anthropic.APIError on failure — let the caller handle it.
@@ -86,14 +88,14 @@ class Claude(BaseAIClient):
 
     # ── private helpers ───────────────────────────────────────────────────────
 
-    def _extract_text(self, content: List[Any]) -> str:
+    def _extract_text(self, content: list[Any]) -> str:
         """Narrow the response content union to the first TextBlock's text."""
         for block in content:
             if isinstance(block, TextBlock):
                 return block.text
         raise ValueError("No TextBlock found in response content")
 
-    def _build_messages(self, chat_id: int) -> List[MessageParam]:
+    def _build_messages(self, chat_id: int) -> list[MessageParam]:
         """
         Assemble the messages list for the Claude API call.
         Injects an existing summary as the first exchange if one exists,
@@ -102,7 +104,7 @@ class Claude(BaseAIClient):
         convo = self._db.get_or_create_conversation(chat_id)
         recent = self._db.get_recent_messages(chat_id)
 
-        messages: List[MessageParam] = []
+        messages: list[MessageParam] = []
 
         summary = convo.get("summary", "").strip()
         if summary:

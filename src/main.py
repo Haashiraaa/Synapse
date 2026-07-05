@@ -2,26 +2,28 @@
 
 # src/main.py
 
-import sys
+import asyncio
 import logging
 import signal
-import asyncio
+import sys
+from typing import Any, cast
+
 from haashi_pkg.utility import Logger
-from src.db.connection import DbConnection
-from src.telegram.handlers import BotHandlers
-from src.config.settings import Settings
-from src.exceptions.errors import EmailAuthError, EmailDeliveryError
-from src.loggers.email_logger import EmailAlertLogger
-from telegram import Update
 from telegram.ext import (
     Application,
     ApplicationBuilder,
-    ContextTypes,
     CommandHandler,
+    ContextTypes,
     MessageHandler,
-    filters
+    filters,
 )
-from typing import Any, cast
+
+from src.config.settings import Settings
+from src.db.connection import DbConnection
+from src.exceptions.errors import EmailAuthError, EmailDeliveryError
+from src.loggers.email_logger import EmailAlertLogger
+from src.telegram.handlers import BotHandlers
+from telegram import Update
 
 
 class Main:

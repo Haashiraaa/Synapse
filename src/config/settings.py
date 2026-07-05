@@ -3,8 +3,10 @@
 # src/config/settings.py
 
 import os
-from src.exceptions.errors import EnvVariableError
+
 from dotenv import load_dotenv
+
+from src.exceptions.errors import EnvVariableError
 
 load_dotenv()
 

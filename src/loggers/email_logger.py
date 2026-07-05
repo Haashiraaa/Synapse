@@ -3,15 +3,16 @@
 # src/loggers/email_logger.py
 
 
-import smtplib
 import logging
-from email.mime.text import MIMEText
+import smtplib
 from email.mime.multipart import MIMEMultipart
-from typing import Optional
-from src.loggers.base import BaseAlertLogger
+from email.mime.text import MIMEText
+
+from haashi_pkg.utility import Logger
+
 from src.config.settings import Settings
 from src.exceptions.errors import EmailAuthError, EmailDeliveryError
-from haashi_pkg.utility import Logger
+from src.loggers.base import BaseAlertLogger
 
 
 class EmailAlertLogger(BaseAlertLogger):
@@ -36,7 +37,7 @@ class EmailAlertLogger(BaseAlertLogger):
 
     def __init__(
         self,
-        logger: Optional[Logger] = None
+        logger: Logger | None = None
     ) -> None:
 
         self.logger = logger or Logger(level=logging.INFO)

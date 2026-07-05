@@ -2,15 +2,17 @@
 
 # src/db/queries.py
 
-from src.db.connection import DbConnection
-from src.config.settings import Settings
-from typing import Dict, Any, Optional, List, Union
+from typing import Any
+
 from psycopg2.extras import RealDictRow
+
+from src.config.settings import Settings
+from src.db.connection import DbConnection
 
 
 class DbQueries:
 
-    def get_or_create_conversation(self, chat_id: int) -> Union[Dict[Any, Any], RealDictRow]:
+    def get_or_create_conversation(self, chat_id: int) -> dict[Any, Any] | RealDictRow:
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -28,7 +30,7 @@ class DbQueries:
                 row = cur.fetchone()
                 return dict(row) if row else {}
 
-    def save_message(self, chat_id: int, role: str, content: str, user_name: Optional[str] = None):
+    def save_message(self, chat_id: int, role: str, content: str, user_name: str | None = None):
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -38,7 +40,7 @@ class DbQueries:
                 )
             conn.commit()
 
-    def get_recent_messages(self, chat_id: int, limit: int = Settings.MESSAGE_WINDOW) -> List[Dict[Any, Any]]:
+    def get_recent_messages(self, chat_id: int, limit: int = Settings.MESSAGE_WINDOW) -> list[dict[Any, Any]]:
         """Returns messages oldest-first for the context window."""
         with DbConnection.get_conn() as conn:
             with conn.cursor() as cur:

@@ -3,14 +3,15 @@
 # src/telegram/handlers.py
 
 import base64
-from src.db.queries import DbQueries
-from src.config.settings import Settings
-from src.ai.base import BaseAIClient
-from src.ai.factory import get_ai_client
-from src.telegram.decorators import restricted
-from telegram import Update
+
 from telegram.ext import ContextTypes
 
+from src.ai.base import BaseAIClient
+from src.ai.factory import get_ai_client
+from src.config.settings import Settings
+from src.db.queries import DbQueries
+from src.telegram.decorators import restricted
+from telegram import Update
 
 # pyright: reportPrivateUsage=false
 

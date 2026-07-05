@@ -2,7 +2,7 @@
 # src/ai/base.py
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class BaseAIClient(ABC):
@@ -16,7 +16,7 @@ class BaseAIClient(ABC):
         self._MODEL: str = self.get_model("sonnet")
 
     @abstractmethod
-    def get_reply(self, chat_id: int, media: Optional[List[Dict[Any, Any]]] = None, caption: str = "") -> str:
+    def get_reply(self, chat_id: int, media: list[dict[Any, Any]] | None = None, caption: str = "") -> str:
         """
         Build context from DB and return the AI's reply to the latest message.
         Accepts chat_id so the provider can fetch conversation history itself.
