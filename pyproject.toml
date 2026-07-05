@@ -1,7 +1,5 @@
 
-[
-project
-]
+[project]
 
 name = "synapse"
 version = "0.1.0"
@@ -25,7 +23,6 @@ dev = [
     "black",
     "pyright",
     "autopep8",
-    "tvm",
 ]
 
 [project.scripts]
