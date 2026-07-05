@@ -28,8 +28,16 @@ class BotHandlers:
         chat_id = update.effective_chat.id
         self.db.get_or_create_conversation(chat_id)
         await update.message.reply_text(
-            "👋 Claude is in the chat. @mention me to ask anything.\n"
-            f"I remember the last {Settings.MESSAGE_WINDOW} messages and summarise older ones automatically."
+            "Hey, I'm Synapse — an AI assistant built on Claude, here to be part of this chat.\n\n"
+            f"Mention me (@{Settings.BOT_USERNAME}) with a question and I'll reply. "
+            f"I keep track of the last {Settings.MESSAGE_WINDOW} messages and summarise older ones "
+            "automatically, so I don't lose the thread of long conversations.\n\n"
+            "Commands:\n"
+            "/summary — see a summary of the conversation so far\n"
+            "/clear — wipe stored history and start fresh\n"
+            "/model — check which Claude model I'm currently using\n"
+            "/switchmodel sonnet|haiku — switch models on the fly\n\n"
+            "I can also read images and PDFs — just mention me (or reply to me) with one attached."
         )
 
     @restricted

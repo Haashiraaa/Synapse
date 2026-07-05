@@ -34,6 +34,12 @@ class Main:
     def _build_app(self) -> Application[Any, Any, Any, Any, Any, Any]:
         return ApplicationBuilder().token(cast(str, Settings.TELEGRAM_TOKEN)).build()
 
+    async def _notify_startup(self, app: Application[Any, Any, Any, Any, Any, Any]) -> None:
+        await app.bot.send_message(
+            chat_id=Settings.ALLOWED_CHAT_ID,
+            text="Synapse is back online and ready to go."
+        )
+
     async def _notify_shutdown(self, app: Application[Any, Any, Any, Any, Any, Any]) -> None:
         await app.bot.send_message(
             chat_id=Settings.ALLOWED_CHAT_ID,
@@ -95,6 +101,12 @@ class Main:
         except (EmailAuthError, EmailDeliveryError) as exc:
             self.logger.error(
                 f"Failed to send start alert: {exc}", exception=exc, save_to_json=True)
+
+        try:
+            await self._notify_startup(app)
+        except Exception as exc:
+            self.logger.error(
+                f"Failed to send startup notification: {exc}", exception=exc, save_to_json=True)
 
         self.logger.info("Bot is running...")
         await stop_event.wait()
