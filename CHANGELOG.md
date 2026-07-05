@@ -1,3 +1,8 @@
+## [0.1.0] - 2026-07-05
+
+**Full Changelog**: https://github.com/Haashiraaa/Synapse/commits/v0.1.0
+
+
 ## [0.1.0] - 2026-07-05
 
 null
