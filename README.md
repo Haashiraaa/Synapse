@@ -53,7 +53,7 @@ Then fill in `.env`:
 | `ANTHROPIC_API_KEY` | Yes | From the Anthropic Console |
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `AI_PROVIDER` | No | Defaults to `claude` - only provider implemented currently |
-| `MESSAGE_WINDOW` | No | Messages kept before auto-summarizing (default: 20) |
+| `MESSAGE_WINDOW` | No | Messages kept before auto-summarizing (default: 8) |
 | `ALERT_EMAIL_FROM` / `ALERT_EMAIL_TO` / `ALERT_EMAIL_PASSWORD` | No | Enables email alerts on start/stop/error if all three are set |
 
 ### 4. Run it
