@@ -20,7 +20,7 @@ jobs:
       - name: Extract version from pyproject.toml
         id: version
         run: |
-          VERSION=$(grep -m1 '^version = ' pyproject.toml | sed -E 's/version = "(.*)"/\1/')
+          VERSION=$(grep -m1 '^version = ' pyproject.toml | sed -E 's/version = "(.*)"/\1/' | tr -d '\r')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Skip if this version was already released
