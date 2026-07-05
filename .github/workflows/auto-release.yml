@@ -20,7 +20,7 @@ jobs:
       - name: Extract version from pyproject.toml
         id: version
         run: |
-          VERSION=$(grep -m1 '^version = ' pyproject.toml | sed -E 's/version = "(.*)"/\1/' | tr -d '\r')
+          VERSION=$(grep -m1 '^version = ' pyproject.toml | sed -E 's/version = "(.*)"/\1/')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Skip if this version was already released
@@ -51,15 +51,24 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           DATE=$(date +%Y-%m-%d)
+
+          # Split the file: everything before the first "## [" entry is the
+          # static header (title + description), everything from there on
+          # is the existing version history. This keeps the header pinned
+          # at the top no matter how many releases get prepended over time.
+          awk '/^## \[/{exit} {print}' CHANGELOG.md > header.md
+          awk '/^## \[/{f=1} f' CHANGELOG.md > existing_entries.md
+
           {
+            cat header.md
             echo "## [$VERSION] - $DATE"
             echo
             cat release_notes.md
             echo
-            echo
-            cat CHANGELOG.md
+            cat existing_entries.md
           } > CHANGELOG.new.md
           mv CHANGELOG.new.md CHANGELOG.md
+          rm -f header.md existing_entries.md
 
       - name: Commit updated CHANGELOG.md
         if: steps.check.outputs.exists == 'false'
