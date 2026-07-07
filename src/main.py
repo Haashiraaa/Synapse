@@ -4,9 +4,10 @@ import asyncio
 import logging
 import signal
 import sys
+from pathlib import Path
 from typing import Any, cast
 
-from haashi_pkg.utility import Logger
+from haashi_pkg.utility import FileHandler, Logger
 from telegram.ext import (
     Application,
     ApplicationBuilder,
@@ -29,6 +30,8 @@ class Main:
     def __init__(self) -> None:
         self.bot = BotHandlers()
         self.logger = Logger(level=logging.INFO)
+        self.logger.log_path = cast(Path, FileHandler(
+            self.logger).get_ancestor_by_name("Synapse")) / "logs/errors.json"
         self.email_alert = EmailAlertLogger(self.logger)
 
     def _build_app(self) -> Application[Any, Any, Any, Any, Any, Any]:
@@ -45,14 +48,16 @@ class Main:
             text="🔧 Bot is going down for maintenance. We'll be back shortly!",
         )
         try:
-            self.email_alert.alert_bot_stopped(reason="Process was interrupted by user!")
+            self.email_alert.alert_bot_stopped(
+                reason="Process was interrupted by user!")
         except (EmailAuthError, EmailDeliveryError) as exc:
             self.logger.error(
                 f"Failed to send shutdown alert: {exc}", exception=exc, save_to_json=True
             )
 
     async def _error_handler(self, update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-        self.logger.error(f"Exception: {context.error}", exception=context.error, save_to_json=True)
+        self.logger.error(
+            f"Exception: {context.error}", exception=context.error, save_to_json=True)
 
         try:
             self.email_alert.alert_error(cast(str, context.error))
@@ -74,9 +79,12 @@ class Main:
         app.add_handler(CommandHandler("summary", self.bot.cmd_summary))
         app.add_handler(CommandHandler("clear", self.bot.cmd_clear))
         app.add_handler(CommandHandler("model", self.bot.cmd_model))
-        app.add_handler(CommandHandler("switchmodel", self.bot.cmd_switch_model))
-        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.bot.handle_message))
-        app.add_handler(MessageHandler(filters.PHOTO | filters.Document.ALL, self.bot.handle_media))
+        app.add_handler(CommandHandler(
+            "switchmodel", self.bot.cmd_switch_model))
+        app.add_handler(MessageHandler(
+            filters.TEXT & ~filters.COMMAND, self.bot.handle_message))
+        app.add_handler(MessageHandler(
+            filters.PHOTO | filters.Document.ALL, self.bot.handle_media))
 
         app.add_error_handler(self._error_handler)
         app.post_shutdown = self._notify_shutdown
