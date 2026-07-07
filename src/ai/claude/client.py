@@ -25,7 +25,7 @@ class Claude(BaseAIClient):
         self._db = DbQueries()
 
         self._SUMMARY_MAX_TOKENS = 500
-        self._REPLY_MAX_TOKENS = 1000
+        self._REPLY_MAX_TOKENS = 4096
 
     # ── public interface (implements BaseAIClient) ────────────────────────────
 
@@ -40,8 +40,10 @@ class Claude(BaseAIClient):
 
         if media and messages:
             last = messages[-1]
-            text_part = caption or (last["content"] if isinstance(last["content"], str) else "")
-            last["content"] = cast(Any, [{"type": "text", "text": text_part}] + media)
+            text_part = caption or (
+                last["content"] if isinstance(last["content"], str) else "")
+            last["content"] = cast(
+                Any, [{"type": "text", "text": text_part}] + media)
 
         response = self._client.messages.create(
             model=self._MODEL,
@@ -58,12 +60,14 @@ class Claude(BaseAIClient):
         Returns the summary text — does NOT save or prune; caller owns that.
         """
         convo = self._db.get_or_create_conversation(chat_id)
-        recent = self._db.get_recent_messages(chat_id, limit=Settings.MESSAGE_WINDOW)
+        recent = self._db.get_recent_messages(
+            chat_id, limit=Settings.MESSAGE_WINDOW)
 
         if not recent:
             return ""
 
-        history_text = "\n".join(f"{m['user_name'] or m['role']}: {m['content']}" for m in recent)
+        history_text = "\n".join(
+            f"{m['user_name'] or m['role']}: {m['content']}" for m in recent)
         prev_summary = convo.get("summary", "")
 
         prompt = (
@@ -119,7 +123,8 @@ class Claude(BaseAIClient):
         for m in recent:
             if m["role"] == "user":
                 prefix = f"{m['user_name']}: " if m["user_name"] else ""
-                messages.append({"role": "user", "content": prefix + m["content"]})
+                messages.append(
+                    {"role": "user", "content": prefix + m["content"]})
             else:
                 messages.append({"role": "assistant", "content": m["content"]})
 
