@@ -28,8 +28,7 @@ class BotHandlers:
         if count >= Settings.MESSAGE_WINDOW:
             summary = self.ai.summarise(chat_id)
             self.db.save_summary(chat_id, summary)
-            self.db.prune_old_messages(
-                chat_id, keep=Settings.MESSAGE_WINDOW // 2)
+            self.db.prune_old_messages(chat_id, keep=Settings.MESSAGE_WINDOW // 2)
 
     @restricted
     async def cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -116,8 +115,7 @@ class BotHandlers:
             self._maybe_summarize(chat_id)
             return
 
-        clean_text = text.replace(mention, "").replace(
-            mention.lower(), "").strip()
+        clean_text = text.replace(mention, "").replace(mention.lower(), "").strip()
         if not clean_text:
             await message.reply_text("Yeah? Ask me something 👀")
             return
@@ -156,8 +154,7 @@ class BotHandlers:
         if mention.lower() not in caption.lower() and not replied_to_bot:
             return  # media not directed at the bot — ignore
 
-        clean_caption = caption.replace(
-            mention, "").replace(mention.lower(), "").strip()
+        clean_caption = caption.replace(mention, "").replace(mention.lower(), "").strip()
 
         if message.photo:
             file = await message.photo[-1].get_file()
@@ -193,8 +190,7 @@ class BotHandlers:
         self.db.save_message(chat_id, "user", placeholder, user_name)
         await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
-        reply = self.ai.get_reply(
-            chat_id, media=[media_block], caption=clean_caption)
+        reply = self.ai.get_reply(chat_id, media=[media_block], caption=clean_caption)
 
         self.db.save_message(chat_id, "assistant", reply)
         self._maybe_summarize(chat_id)
