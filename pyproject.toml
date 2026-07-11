@@ -2,7 +2,7 @@
 [project]
 
 name = "synapse"
-version = "0.2.4"
+version = "0.2.5"
 description = "Free, open-source Telegram group AI bot built on the Anthropic Claude API"
 readme = "README.md"
 requires-python = ">=3.10"

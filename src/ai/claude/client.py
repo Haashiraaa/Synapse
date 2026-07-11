@@ -24,8 +24,10 @@ class Claude(BaseAIClient):
         self._client = Anthropic(api_key=Settings.ANTHROPIC_API_KEY)
         self._db = DbQueries()
 
-        self._SUMMARY_MAX_TOKENS = 500
+        self._SUMMARY_MAX_TOKENS = 1536
         self._REPLY_MAX_TOKENS = 4096
+        self._SUMMARY_SOFT_CAP_WORDS = 900
+        self._SUMMARY_MODEL = self.get_model("haiku")
 
     # ── public interface (implements BaseAIClient) ────────────────────────────
 
@@ -70,15 +72,43 @@ class Claude(BaseAIClient):
             f"{m['user_name'] or m['role']}: {m['content']}" for m in recent)
         prev_summary = convo.get("summary", "")
 
-        prompt = (
-            f"Previous summary:\n{prev_summary}\n\n"
-            f"New messages:\n{history_text}\n\n"
-            "Write a concise summary (max 300 words) of the entire conversation so far, "
-            "capturing key decisions, code snippets discussed, open questions, and who said what."
-        )
+        if len(prev_summary.split()) > self._SUMMARY_SOFT_CAP_WORDS:
+            prompt = (
+                f"Current running summary (has grown too long):\n{prev_summary}\n\n"
+                f"New messages to fold in:\n{history_text}\n\n"
+                "This summary has grown too large and needs compacting. Rewrite it "
+                "tighter: drop anything resolved, outdated, or no longer relevant — "
+                "closed questions, decisions already acted on, dated logistics that "
+                "have passed. Keep durable facts, standing decisions, unresolved open "
+                "questions, and anything someone would need to know to avoid repeating "
+                f"themselves. Fold in the new messages too. Target roughly "
+                f"{self._SUMMARY_SOFT_CAP_WORDS // 2} words. Dense bullet points, "
+                "grouped by topic, attributed by name where relevant."
+                "When referencing code, describe the change or decision rather than pasting the "
+                "snippet verbatim — e.g. 'fixed the race condition in the pruning logic by "
+                "decoupling keep from the trigger threshold' rather than reproducing the diff."
+            )
+        else:
+            prompt = (
+                f"Previous summary (running memory of the conversation):\n"
+                f"{prev_summary or '(none yet — this is the first summary)'}\n\n"
+                f"New messages to fold in:\n{history_text}\n\n"
+                "Update the summary above to incorporate the new messages. This is a "
+                "persistent memory, not a fresh recap: preserve every fact, decision, "
+                "commitment, and open question from the previous summary UNLESS the new "
+                "messages explicitly resolve, contradict, or supersede it. Do not "
+                "re-compress or drop old information just to save space — only trim "
+                "something if it's genuinely resolved or no longer relevant. Use dense "
+                "topic-grouped bullet points rather than prose, and attribute anything "
+                "person-specific. There is no fixed word limit — let it grow if the "
+                "conversation genuinely has more going on."
+                "When referencing code, describe the change or decision rather than pasting the "
+                "snippet verbatim — e.g. 'fixed the race condition in the pruning logic by "
+                "decoupling keep from the trigger threshold' rather than reproducing the diff."
+            )
 
         response = self._client.messages.create(
-            model=self._MODEL,
+            model=self._SUMMARY_MODEL,
             max_tokens=self._SUMMARY_MAX_TOKENS,
             messages=[{"role": "user", "content": prompt}],
         )

@@ -28,7 +28,8 @@ class BotHandlers:
         if count >= Settings.MESSAGE_WINDOW:
             summary = self.ai.summarise(chat_id)
             self.db.save_summary(chat_id, summary)
-            self.db.prune_old_messages(chat_id)
+            self.db.prune_old_messages(
+                chat_id, keep=Settings.MESSAGE_WINDOW // 2)
 
     @restricted
     async def cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
