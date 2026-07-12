@@ -1,6 +1,5 @@
 # src/telegram/handlers.py
 
-import base64
 
 from telegram.ext import ContextTypes
 

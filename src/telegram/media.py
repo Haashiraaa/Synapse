@@ -7,8 +7,10 @@ import base64
 import io
 from dataclasses import dataclass
 from typing import Any
-from src.exceptions.errors import UnsupportedMediaError
+
 import docx
+
+from src.exceptions.errors import UnsupportedMediaError
 
 
 @dataclass
