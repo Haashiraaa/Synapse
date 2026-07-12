@@ -1,6 +1,7 @@
+
 # Synapse
 
-Synapse is a free, open-source Telegram bot that brings Claude into a group chat as a participant, not a command-line tool. It remembers the conversation, summarizes older history automatically, and can read images and PDFs shared in the group.
+Synapse is a free, open-source Telegram bot that brings Claude into a group chat as a participant, not a command-line tool. It remembers the conversation, summarizes older history automatically, and can read images, PDFs, diffs, and Word docs shared in the group.
 
 ## Features
 
@@ -8,7 +9,7 @@ Synapse is a free, open-source Telegram bot that brings Claude into a group chat
 - **Persistent conversation memory** backed by PostgreSQL, with a sliding context window that auto-summarizes older messages instead of losing them
 - **Single-group access control** - the bot only responds in the one group it's configured for
 - **Runtime model switching** between Claude models via `/switchmodel`, without restarting the bot
-- **Image and PDF support** - send a photo or document and mention the bot (or reply to it) to ask about it
+- **Image, PDF, diff, and docx support** - send a photo or document and mention the bot (or reply to it) to ask about it
 - **Graceful shutdown notifications** in the group when the bot is stopped or redeployed
 - **Optional email alerts** on bot start, stop, and error, via Gmail SMTP
 - **Swappable AI provider architecture** - Claude is implemented today; other providers can be added behind the same interface
@@ -74,6 +75,15 @@ synapse
 | `/model` | Shows the currently active Claude model |
 | `/switchmodel sonnet\|haiku` | Switches the active model at runtime |
 
+## Supported media
+
+Mention the bot (or reply to it) with one of the following attached:
+
+- **Images** (jpeg, png, webp, gif) - sent through Claude's vision pipeline
+- **PDFs** - sent through Claude's document pipeline
+- **Diffs / patches** (`.diff`, `.patch`) - decoded as text and persisted in conversation history, capped at 50 KB
+- **Word documents** (`.docx`) - text and table content extracted via `python-docx`, capped at 20,000 characters
+
 ## Project structure
 
 ```
@@ -83,7 +93,7 @@ src/
   config/             environment-driven settings
   db/                 PostgreSQL connection and queries
   loggers/            optional email alerting
-  telegram/           command/message handlers, access control decorator
+  telegram/           command/message handlers, media processing, access control decorator
   exceptions/         custom error types
 docs/                 setup guides
 ```

@@ -48,14 +48,16 @@ class MediaProcessor:
             return self._handle_pdf(raw, caption)
         if mime_type in self.IMAGE_TYPES:
             return self._handle_image(raw, mime_type, caption)
-        raise UnsupportedMediaError(f"Unsupported media: mime={mime_type} filename={filename}")
+        raise UnsupportedMediaError(
+            f"Unsupported media: mime={mime_type} filename={filename}")
 
     # ── per-type handlers ─────────────────────────────────────
 
     def _handle_image(self, raw: bytes, mime_type: str, caption: str) -> MediaOutcome:
         b64 = base64.b64encode(raw).decode("utf-8")
         return MediaOutcome(
-            placeholder="[sent an image]" + (f": {caption}" if caption else ""),
+            placeholder="[sent an image]" +
+            (f": {caption}" if caption else ""),
             media_block={
                 "type": "image",
                 "source": {"type": "base64", "media_type": mime_type, "data": b64},
@@ -77,7 +79,8 @@ class MediaProcessor:
         truncated = len(text.encode("utf-8")) > self.MAX_DIFF_BYTES
         if truncated:
             text = text[: self.MAX_DIFF_BYTES]
-        body = f"[sent diff: {filename}]" + (f" — {caption}" if caption else "")
+        body = f"[sent diff: {filename}]" + \
+            (f" — {caption}" if caption else "")
         body += f"\n```diff\n{text}\n```"
         if truncated:
             body += "\n[diff truncated — too large]"
@@ -106,7 +109,8 @@ class MediaProcessor:
         if not text.strip():
             text = "(no extractable text — file may be images, headers/footers only, or empty)"
 
-        body = f"[sent docx: {filename}]" + (f" — {caption}" if caption else "")
+        body = f"[sent docx: {filename}]" + \
+            (f" — {caption}" if caption else "")
         body += f"\n{text}"
         if truncated:
             body += "\n[docx truncated — too large]"
