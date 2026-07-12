@@ -29,8 +29,7 @@ class BotHandlers:
         if count >= Settings.MESSAGE_WINDOW:
             summary = self.ai.summarise(chat_id)
             self.db.save_summary(chat_id, summary)
-            self.db.prune_old_messages(
-                chat_id, keep=Settings.MESSAGE_WINDOW // 2)
+            self.db.prune_old_messages(chat_id, keep=Settings.MESSAGE_WINDOW // 2)
 
     @restricted
     async def cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -117,8 +116,7 @@ class BotHandlers:
             self._maybe_summarize(chat_id)
             return
 
-        clean_text = text.replace(mention, "").replace(
-            mention.lower(), "").strip()
+        clean_text = text.replace(mention, "").replace(mention.lower(), "").strip()
         if not clean_text:
             await message.reply_text("Yeah? Ask me something 👀")
             return
@@ -155,8 +153,7 @@ class BotHandlers:
         if mention.lower() not in caption.lower() and not replied_to_bot:
             return
 
-        clean_caption = caption.replace(
-            mention, "").replace(mention.lower(), "").strip()
+        clean_caption = caption.replace(mention, "").replace(mention.lower(), "").strip()
 
         if message.photo:
             file = await message.photo[-1].get_file()
@@ -168,7 +165,9 @@ class BotHandlers:
             mime_type, filename = doc.mime_type, doc.file_name
 
         if not self.media.supports(mime_type, filename):
-            await message.reply_text("I can only read images, PDFs, diffs, and docx files right now 🙃")
+            await message.reply_text(
+                "I can only read images, PDFs, diffs, and docx files right now 🙃"
+            )
             return
 
         raw = bytes(await file.download_as_bytearray())
@@ -178,8 +177,7 @@ class BotHandlers:
         await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
         if outcome.media_block:
-            reply = self.ai.get_reply(
-                chat_id, media=[outcome.media_block], caption=clean_caption)
+            reply = self.ai.get_reply(chat_id, media=[outcome.media_block], caption=clean_caption)
         else:
             # diff already lives in messages.content
             reply = self.ai.get_reply(chat_id)

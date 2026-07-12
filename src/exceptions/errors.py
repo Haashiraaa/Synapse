@@ -23,4 +23,5 @@ class EmailDeliveryError(AppError):
 
 class UnsupportedMediaError(AppError):
     """Raised when no handler matches — caller decides the user-facing message."""
+
     pass
