@@ -19,3 +19,8 @@ class EmailAuthError(AppError):
 
 class EmailDeliveryError(AppError):
     pass
+
+
+class UnsupportedMediaError(AppError):
+    """Raised when no handler matches — caller decides the user-facing message."""
+    pass

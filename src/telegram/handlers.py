@@ -9,6 +9,7 @@ from src.ai.factory import get_ai_client
 from src.config.settings import Settings
 from src.db.queries import DbQueries
 from src.telegram.decorators import restricted
+from src.telegram.media import MediaProcessor
 from telegram import Update
 
 # pyright: reportPrivateUsage=false
@@ -19,6 +20,7 @@ class BotHandlers:
     def __init__(self) -> None:
         self.db = DbQueries()
         self.ai: BaseAIClient = get_ai_client()
+        self.media = MediaProcessor()
 
     # ── Internal helpers ────────────────────────────────────────
 
@@ -28,7 +30,8 @@ class BotHandlers:
         if count >= Settings.MESSAGE_WINDOW:
             summary = self.ai.summarise(chat_id)
             self.db.save_summary(chat_id, summary)
-            self.db.prune_old_messages(chat_id, keep=Settings.MESSAGE_WINDOW // 2)
+            self.db.prune_old_messages(
+                chat_id, keep=Settings.MESSAGE_WINDOW // 2)
 
     @restricted
     async def cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -115,7 +118,8 @@ class BotHandlers:
             self._maybe_summarize(chat_id)
             return
 
-        clean_text = text.replace(mention, "").replace(mention.lower(), "").strip()
+        clean_text = text.replace(mention, "").replace(
+            mention.lower(), "").strip()
         if not clean_text:
             await message.reply_text("Yeah? Ask me something 👀")
             return
@@ -131,7 +135,6 @@ class BotHandlers:
 
     @restricted
     async def handle_media(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-
         message = update.message
         if not message or not (message.photo or message.document):
             return
@@ -150,47 +153,37 @@ class BotHandlers:
             and message.reply_to_message.from_user
             and message.reply_to_message.from_user.username == bot_username
         )
-
         if mention.lower() not in caption.lower() and not replied_to_bot:
-            return  # media not directed at the bot — ignore
+            return
 
-        clean_caption = caption.replace(mention, "").replace(mention.lower(), "").strip()
+        clean_caption = caption.replace(
+            mention, "").replace(mention.lower(), "").strip()
 
         if message.photo:
             file = await message.photo[-1].get_file()
-            media_type, kind = "image/jpeg", "image"
+            mime_type, filename = "image/jpeg", None
         else:
             doc = message.document
             assert doc is not None
-
-            if doc.mime_type not in (
-                "image/jpeg",
-                "image/png",
-                "image/webp",
-                "image/gif",
-                "application/pdf",
-            ):
-                await message.reply_text("I can only read images and PDFs right now 🙃")
-                return
             file = await doc.get_file()
-            media_type = doc.mime_type
-            kind = "image" if media_type.startswith("image/") else "document"
+            mime_type, filename = doc.mime_type, doc.file_name
 
-        raw = await file.download_as_bytearray()
-        b64_data = base64.b64encode(bytes(raw)).decode("utf-8")
+        if not self.media.supports(mime_type, filename):
+            await message.reply_text("I can only read images, PDFs, diffs, and docx files right now 🙃")
+            return
 
-        media_block = {
-            "type": kind,
-            "source": {"type": "base64", "media_type": media_type, "data": b64_data},
-        }
+        raw = bytes(await file.download_as_bytearray())
+        outcome = self.media.process(raw, mime_type, filename, clean_caption)
 
-        placeholder = f"[sent {'an image' if kind == 'image' else 'a PDF'}]" + (
-            f": {clean_caption}" if clean_caption else ""
-        )
-        self.db.save_message(chat_id, "user", placeholder, user_name)
+        self.db.save_message(chat_id, "user", outcome.placeholder, user_name)
         await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
-        reply = self.ai.get_reply(chat_id, media=[media_block], caption=clean_caption)
+        if outcome.media_block:
+            reply = self.ai.get_reply(
+                chat_id, media=[outcome.media_block], caption=clean_caption)
+        else:
+            # diff already lives in messages.content
+            reply = self.ai.get_reply(chat_id)
 
         self.db.save_message(chat_id, "assistant", reply)
         self._maybe_summarize(chat_id)
