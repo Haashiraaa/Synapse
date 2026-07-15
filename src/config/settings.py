@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 
 from src.exceptions.errors import EnvVariableError
-from typing import Dict, Union
 
 load_dotenv()
 
@@ -44,7 +43,7 @@ class Settings:
     ALERT_EMAIL_TO = os.getenv("ALERT_EMAIL_TO")
     ALERT_EMAIL_PASSWORD = os.getenv("ALERT_EMAIL_PASSWORD")
 
-    _REQUIRED: Dict[str, Union[str, set[int], int, None]] = {
+    _REQUIRED: dict[str, str | set[int] | int | None] = {
         "TELEGRAM_TOKEN": TELEGRAM_TOKEN,
         "ALLOWED_CHAT_IDS": ALLOWED_CHAT_IDS or None,
         "BOT_USERNAME": BOT_USERNAME,
