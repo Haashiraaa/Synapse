@@ -9,7 +9,7 @@ from src.config.settings import Settings
 from src.db.queries import DbQueries
 from src.telegram.decorators import restricted
 from src.telegram.media import MediaProcessor
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 
 # pyright: reportPrivateUsage=false
 
@@ -67,10 +67,46 @@ class BotHandlers:
     async def cmd_clear(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         assert update.effective_chat
         assert update.message
+        assert update.effective_user
+        user_id = update.effective_user.id
+
+        keyboard = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        "✅ Yes, clear it", callback_data=f"clear:confirm:{user_id}"
+                    ),
+                    InlineKeyboardButton("❌ Cancel", callback_data=f"clear:cancel:{user_id}"),
+                ]
+            ]
+        )
+        await update.message.reply_text(
+            "⚠️ This will permanently wipe stored history and the summary for this chat. Sure?",
+            reply_markup=keyboard,
+        )
+
+    @restricted
+    async def cb_clear(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        query = update.callback_query
+        assert query and query.data
+        assert update.effective_chat
         chat_id = update.effective_chat.id
+
+        _, action, requester_id = query.data.split(":")
+
+        if query.from_user.id != int(requester_id):
+            await query.answer("Only the person who ran /clear can confirm this.", show_alert=True)
+            return
+
+        await query.answer()
+
+        if action == "cancel":
+            await query.edit_message_text("Cancelled — history left untouched.")
+            return
+
         self.db.clear_history(chat_id)
         self.db.save_summary(chat_id, "")
-        await update.message.reply_text("🗑️ History cleared. Fresh start.")
+        await query.edit_message_text("🗑️ History cleared. Fresh start.")
 
     @restricted
     async def cmd_switch_model(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
