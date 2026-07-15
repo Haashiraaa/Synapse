@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - 2026-07-15
 
+### Added
+ - Multi-group support: `ALLOWED_CHAT_IDS` (comma-separated) replaces `ALLOWED_CHAT_ID`. Each group gets independent conversation history, summary, and message window.
+
+ ### Changed
+ - Startup/shutdown notifications now fan out to every configured group instead of a single chat, with per-group failure isolation (one group's send failure no longer blocks the others).
+
+ ### Breaking
+ - `ALLOWED_CHAT_ID` env var is no longer read. Rename it to `ALLOWED_CHAT_IDS` in `.env` before upgrading — the bot will fail to start otherwise (fails loudly, not silently).
+
 **Full Changelog**: https://github.com/Haashiraaa/Synapse/compare/v0.3.1...v0.4.0
 
 ## [0.3.1] - 2026-07-15

@@ -30,8 +30,7 @@ class Settings:
 
     # Telegram
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-    ALLOWED_CHAT_IDS: set[int] = _parse_chat_ids(
-        os.getenv("ALLOWED_CHAT_IDS", ""))
+    ALLOWED_CHAT_IDS: set[int] = _parse_chat_ids(os.getenv("ALLOWED_CHAT_IDS", ""))
     BOT_USERNAME = os.getenv("BOT_USERNAME")  # e.g. @YourBotName
 
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
