@@ -41,24 +41,42 @@ class Main:
         return ApplicationBuilder().token(cast(str, Settings.TELEGRAM_TOKEN)).build()
 
     async def _notify_startup(self, app: Application[Any, Any, Any, Any, Any, Any]) -> None:
-        await app.bot.send_message(
-            chat_id=Settings.ALLOWED_CHAT_ID, text="Synapse is back online and ready to go."
-        )
+        for chat_id in Settings.ALLOWED_CHAT_IDS:
+            try:
+                await app.bot.send_message(
+                    chat_id=chat_id, text="Synapse is back online and ready to go."
+                )
+            except Exception as exc:
+                self.logger.error(
+                    f"Failed to send startup notice to {chat_id}: {exc}",
+                    exception=exc,
+                    save_to_json=True,
+                )
 
     async def _notify_shutdown(self, app: Application[Any, Any, Any, Any, Any, Any]) -> None:
-        await app.bot.send_message(
-            chat_id=Settings.ALLOWED_CHAT_ID,
-            text="🔧 Bot is going down for maintenance. We'll be back shortly!",
-        )
+        for chat_id in Settings.ALLOWED_CHAT_IDS:
+            try:
+                await app.bot.send_message(
+                    chat_id=chat_id,
+                    text="🔧 Bot is going down for maintenance. We'll be back shortly!",
+                )
+            except Exception as exc:
+                self.logger.error(
+                    f"Failed to send shutdown notice to {chat_id}: {exc}",
+                    exception=exc,
+                    save_to_json=True,
+                )
         try:
-            self.email_alert.alert_bot_stopped(reason="Process was interrupted by user!")
+            self.email_alert.alert_bot_stopped(
+                reason="Process was interrupted by user!")
         except (EmailAuthError, EmailDeliveryError) as exc:
             self.logger.error(
                 f"Failed to send shutdown alert: {exc}", exception=exc, save_to_json=True
             )
 
     async def _error_handler(self, update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-        self.logger.error(f"Exception: {context.error}", exception=context.error, save_to_json=True)
+        self.logger.error(
+            f"Exception: {context.error}", exception=context.error, save_to_json=True)
 
         try:
             self.email_alert.alert_error(cast(str, context.error))
@@ -78,11 +96,15 @@ class Main:
 
         app.add_handler(CommandHandler("start", self.bot.cmd_start))
         app.add_handler(CommandHandler("summary", self.bot.cmd_summary))
-        app.add_handler(CallbackQueryHandler(self.bot.cb_clear, pattern=r"^clear:"))
+        app.add_handler(CallbackQueryHandler(
+            self.bot.cb_clear, pattern=r"^clear:"))
         app.add_handler(CommandHandler("model", self.bot.cmd_model))
-        app.add_handler(CommandHandler("switchmodel", self.bot.cmd_switch_model))
-        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.bot.handle_message))
-        app.add_handler(MessageHandler(filters.PHOTO | filters.Document.ALL, self.bot.handle_media))
+        app.add_handler(CommandHandler(
+            "switchmodel", self.bot.cmd_switch_model))
+        app.add_handler(MessageHandler(
+            filters.TEXT & ~filters.COMMAND, self.bot.handle_message))
+        app.add_handler(MessageHandler(
+            filters.PHOTO | filters.Document.ALL, self.bot.handle_media))
 
         app.add_error_handler(self._error_handler)
         app.post_shutdown = self._notify_shutdown

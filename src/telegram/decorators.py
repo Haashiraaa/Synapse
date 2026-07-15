@@ -10,7 +10,8 @@ from telegram.ext import ContextTypes
 from src.config.settings import Settings
 from telegram import Update
 
-Handler = Callable[[Any, Update, ContextTypes.DEFAULT_TYPE], Coroutine[Any, Any, None]]
+Handler = Callable[[Any, Update, ContextTypes.DEFAULT_TYPE],
+                   Coroutine[Any, Any, None]]
 
 
 def restricted(func: Handler) -> Handler:
@@ -23,7 +24,7 @@ def restricted(func: Handler) -> Handler:
 
         chat_id = update.effective_chat.id if update.effective_chat else None
 
-        if chat_id != int(Settings.ALLOWED_CHAT_ID):
+        if chat_id not in Settings.ALLOWED_CHAT_IDS:
             return
 
         await func(self, update, context)
