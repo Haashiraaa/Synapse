@@ -1,5 +1,3 @@
-
-
 # src/main/teams.py
 
 
@@ -9,6 +7,4 @@ def main() -> None:
     src/platforms/teams/server.py (aiohttp + BotFrameworkAdapter) once
     that's built out.
     """
-    raise NotImplementedError(
-        "Teams integration isn't built yet — see src/platforms/teams/."
-    )
+    raise NotImplementedError("Teams integration isn't built yet — see src/platforms/teams/.")
