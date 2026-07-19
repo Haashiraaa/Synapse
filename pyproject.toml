@@ -2,7 +2,7 @@
 [project]
 
 name = "synapse"
-version = "0.4.1"
+version = "0.5.0"
 description = "Free, open-source Telegram group AI bot built on the Anthropic Claude API"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -27,7 +27,8 @@ dev = [
 ]
 
 [project.scripts]
-synapse = "src.main:main"
+synapse-telegram = "src.mains.telegram:main"
+synapse-teams = "src.mains.teams:main"
 
 [build-system]
 requires = ["hatchling"]
