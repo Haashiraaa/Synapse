@@ -97,7 +97,9 @@ src/
   config/             environment-driven settings
   db/                 PostgreSQL connection and queries
   loggers/            optional email alerting
-  telegram/           command/message handlers, access control decorator, media processing
+  platforms/          platform integrations (Telegram, Microsoft Teams)
+    telegram/         command/message handlers, access control decorator, media processing
+    teams/            Teams integration: Comming soon
   exceptions/         custom error types
 docs/                 setup guides
 ```
