@@ -24,6 +24,8 @@ dev = [
     "black",
     "pyright",
     "autopep8",
+    "pytest",
+    "pytest-asyncio",
 ]
 
 [project.scripts]
@@ -53,3 +55,6 @@ target-version = ["py310"]
 include = ["src", "app"]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

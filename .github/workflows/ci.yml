@@ -28,3 +28,6 @@ jobs:
 
       - name: Pyright type check
         run: pyright
+
+      - name: Pytest
+      - run: pytest

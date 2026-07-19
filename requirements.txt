@@ -15,4 +15,5 @@ ruff
 black
 pyright
 autopep8
-
+pytest
+pytest-asyncio
