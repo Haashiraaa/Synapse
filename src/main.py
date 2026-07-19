@@ -22,7 +22,7 @@ from src.config.settings import Settings
 from src.db.connection import DbConnection
 from src.exceptions.errors import EmailAuthError, EmailDeliveryError
 from src.loggers.email_logger import EmailAlertLogger
-from src.telegram.handlers import BotHandlers
+from src.platforms.telegram.handlers import BotHandlers
 from telegram import Update
 
 

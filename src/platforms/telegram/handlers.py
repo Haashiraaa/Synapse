@@ -7,8 +7,8 @@ from src.ai.base import BaseAIClient
 from src.ai.factory import get_ai_client
 from src.config.settings import Settings
 from src.db.queries import DbQueries
-from src.telegram.decorators import restricted
-from src.telegram.media import MediaProcessor
+from src.platforms.telegram.decorators import restricted
+from src.platforms.telegram.media import MediaProcessor
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 
 # pyright: reportPrivateUsage=false
@@ -29,7 +29,8 @@ class BotHandlers:
         if count >= Settings.MESSAGE_WINDOW:
             summary = self.ai.summarise(chat_id)
             self.db.save_summary(chat_id, summary)
-            self.db.prune_old_messages(chat_id, keep=Settings.MESSAGE_WINDOW // 2)
+            self.db.prune_old_messages(
+                chat_id, keep=Settings.MESSAGE_WINDOW // 2)
 
     @restricted
     async def cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -76,7 +77,8 @@ class BotHandlers:
                     InlineKeyboardButton(
                         "✅ Yes, clear it", callback_data=f"clear:confirm:{user_id}"
                     ),
-                    InlineKeyboardButton("❌ Cancel", callback_data=f"clear:cancel:{user_id}"),
+                    InlineKeyboardButton(
+                        "❌ Cancel", callback_data=f"clear:cancel:{user_id}"),
                 ]
             ]
         )
@@ -153,7 +155,8 @@ class BotHandlers:
             self._maybe_summarize(chat_id)
             return
 
-        clean_text = text.replace(mention, "").replace(mention.lower(), "").strip()
+        clean_text = text.replace(mention, "").replace(
+            mention.lower(), "").strip()
         if not clean_text:
             await message.reply_text("Yeah? Ask me something 👀")
             return
@@ -190,7 +193,8 @@ class BotHandlers:
         if mention.lower() not in caption.lower() and not replied_to_bot:
             return
 
-        clean_caption = caption.replace(mention, "").replace(mention.lower(), "").strip()
+        clean_caption = caption.replace(
+            mention, "").replace(mention.lower(), "").strip()
 
         if message.photo:
             file = await message.photo[-1].get_file()
@@ -214,7 +218,8 @@ class BotHandlers:
         await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
         if outcome.media_block:
-            reply = self.ai.get_reply(chat_id, media=[outcome.media_block], caption=clean_caption)
+            reply = self.ai.get_reply(
+                chat_id, media=[outcome.media_block], caption=clean_caption)
         else:
             # diff already lives in messages.content
             reply = self.ai.get_reply(chat_id)
