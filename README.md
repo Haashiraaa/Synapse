@@ -64,10 +64,16 @@ Then fill in `.env`:
 ### 4. Run it
 
 ```bash
-synapse
+python3 -m app telegram
 ```
 
-(Or `python3 -m app` if you haven't installed the package.)
+Or, if you've installed the package (`pip install -e ".[dev]"`):
+
+```bash
+synapse-telegram
+```
+
+Teams integration is scaffolded but not wired up yet — `python3 -m app teams` / `synapse-teams` will raise `NotImplementedError` until that lands.
 
 ## Commands
 
@@ -91,15 +97,16 @@ Mention the bot (or reply to it) with one of the following attached:
 ## Project structure
 
 ```
-app/                  entry point (python -m app)
+app/                  CLI entry point (python -m app telegram|teams)
 src/
   ai/                 provider-agnostic AI interface, Claude implementation, prompt
   config/             environment-driven settings
   db/                 PostgreSQL connection and queries
   loggers/            optional email alerting
+  main/               per-platform bootstrap (TelegramMain, teams stub)
   platforms/          platform integrations (Telegram, Microsoft Teams)
     telegram/         command/message handlers, access control decorator, media processing
-    teams/            Teams integration: Comming soon
+    teams/            Teams integration (not yet built)
   exceptions/         custom error types
 docs/                 setup guides
 ```
