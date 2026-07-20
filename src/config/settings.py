@@ -29,8 +29,13 @@ class Settings:
 
     # Telegram
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-    ALLOWED_CHAT_IDS: set[int] = _parse_chat_ids(os.getenv("ALLOWED_CHAT_IDS", ""))
+    ALLOWED_CHAT_IDS: set[int] = _parse_chat_ids(
+        os.getenv("ALLOWED_CHAT_IDS", ""))
     BOT_USERNAME = os.getenv("BOT_USERNAME")  # e.g. @YourBotName
+
+    # Teams
+    MICROSOFT_APP_ID = os.getenv("MICROSOFT_APP_ID", "")
+    MICROSOFT_APP_PASSWORD = os.getenv("MICROSOFT_APP_PASSWORD", "")
 
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
     AI_PROVIDER = os.getenv("AI_PROVIDER")
@@ -44,9 +49,6 @@ class Settings:
     ALERT_EMAIL_PASSWORD = os.getenv("ALERT_EMAIL_PASSWORD")
 
     _REQUIRED: dict[str, str | set[int] | int | None] = {
-        "TELEGRAM_TOKEN": TELEGRAM_TOKEN,
-        "ALLOWED_CHAT_IDS": ALLOWED_CHAT_IDS or None,
-        "BOT_USERNAME": BOT_USERNAME,
         "ANTHROPIC_API_KEY": ANTHROPIC_API_KEY,
         "DATABASE_URL": DATABASE_URL,
     }

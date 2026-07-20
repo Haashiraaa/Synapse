@@ -2,7 +2,7 @@
 [project]
 
 name = "synapse"
-version = "0.5.1"
+version = "0.6.0"
 description = "Free, open-source Telegram group AI bot built on the Anthropic Claude API"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,6 +15,8 @@ dependencies = [
     "psycopg2-binary",
     "python-dotenv",
     "python-docx",
+    "botbuilder-core",
+    "aiohttp",
     "haashi_pkg==1.6.0",
 ]
 

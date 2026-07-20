@@ -7,6 +7,8 @@ python-telegram-bot
 psycopg2-binary
 python-dotenv
 python-docx
+botbuilder-core
+aiohttp
 haashi_pkg==1.6.0
 
 
